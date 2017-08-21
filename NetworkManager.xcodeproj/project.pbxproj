@@ -14,6 +14,7 @@
 		A75143871F4AAB810089578A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A75143851F4AAB810089578A /* LaunchScreen.storyboard */; };
 		A75143921F4AAB810089578A /* NetworkManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A75143911F4AAB810089578A /* NetworkManagerTests.swift */; };
 		A751439D1F4AAB810089578A /* NetworkManagerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A751439C1F4AAB810089578A /* NetworkManagerUITests.swift */; };
+		A75143AB1F4AAB950089578A /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A75143AA1F4AAB950089578A /* NetworkManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		A75143981F4AAB810089578A /* NetworkManagerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetworkManagerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A751439C1F4AAB810089578A /* NetworkManagerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerUITests.swift; sourceTree = "<group>"; };
 		A751439E1F4AAB810089578A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A75143AA1F4AAB950089578A /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				A751437C1F4AAB810089578A /* AppDelegate.swift */,
+				A75143AA1F4AAB950089578A /* NetworkManager.swift */,
 				A751437E1F4AAB810089578A /* ViewController.swift */,
 				A75143801F4AAB810089578A /* Main.storyboard */,
 				A75143831F4AAB810089578A /* Assets.xcassets */,
@@ -259,6 +262,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A75143AB1F4AAB950089578A /* NetworkManager.swift in Sources */,
 				A751437F1F4AAB810089578A /* ViewController.swift in Sources */,
 				A751437D1F4AAB810089578A /* AppDelegate.swift in Sources */,
 			);

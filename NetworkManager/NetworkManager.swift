@@ -21,6 +21,13 @@ enum ResponseType {
     case failure(Error)
 }
 
+struct MultipartFile {
+    var name: String
+    var mimeType: String
+    var data: Data
+    var fileName: String
+}
+
 class NetworkManager {
     
     
@@ -31,15 +38,18 @@ class NetworkManager {
     private var extendedUrl = ""
     private var fullUrlString = ""
     private var httpMethod: HTTPMethod = .get
-    private var requestTimeOutInterval:TimeInterval = 40
+    private var requestTimeOutInterval:TimeInterval = 70
     private var parametres: [String: Any]?
+    private var files = [MultipartFile]()
 
     
     typealias networkHandler = (ResponseType) -> ()
     private var completionCallBack: networkHandler?
     
     init() {
+        headers["authorization"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjExRTc4M0U4NEZCMDYwRTBBRDNBNjkwQjhBNTFBQzZFIiwiZGF0ZSI6MTUwMzMyMDcwMDY5MCwiaWF0IjoxNTAzMzIwNzAwfQ.F7RP6885yEiWni0xdDQfdFrVG2-SBU6KTYG9aKylHJ8"
     }
+    
     
     // MARK: For additional functionality
     @discardableResult
@@ -54,6 +64,18 @@ class NetworkManager {
         self.requestTimeOutInterval = requestTimeOutInterval
         return self
     }
+    
+    convenience init(httpMethod:HTTPMethod, fullUrlString: String, params: [String: Any]?, files: [MultipartFile]) {
+        self.init()
+        self.httpMethod = httpMethod
+        guard let encodedUrl = fullUrlString.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed) else {
+            return
+        }
+        self.files = files
+        self.fullUrlString = encodedUrl
+        self.parametres = params
+    }
+    
     
     convenience init(httpMethod:HTTPMethod, extendedUrl: String, params: [String: Any]?) {
         self.init()
@@ -80,7 +102,11 @@ class NetworkManager {
     // MARK: Completion handler
     func completion(callback: @escaping networkHandler) {
         completionCallBack = callback
-        startRequest()
+        if files.isEmpty {
+             startRequest()
+                return
+        }
+        uploadingMultipleTask()
     }
     
     
@@ -118,6 +144,72 @@ class NetworkManager {
         startDataTask(session: session, request: request)
 
     }
+    
+    func uploadingMultipleTask() {
+        
+        var session = URLSession.shared
+        let boundary: NSString = "----WebKitFormBoundarycC4YiaUFwM44F6rT"
+        let body: NSMutableData = NSMutableData()
+        if let params = self.parametres {
+            for (key, value) in params {
+                body.append(("--\(boundary)\r\n" as String).data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+                body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n" .data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+                body.append("\(value)\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+            }
+        }
+        for file in self.files {
+            body.append(("--\(boundary)\r\n" as String).data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+            body.append("Content-Disposition: form-data; name=\"\(file.name)\"; filename=\"\(file.fileName)\"\r\n" .data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+            body.append("Content-Type: \(file.mimeType)\r\n\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+            body.append(file.data)
+            body.append("\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+        }
+        
+        body.append("--\(boundary)--\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+        guard let url = URL(string: fullUrlString) else {
+                return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = httpMethod.rawValue
+        request.httpBody = body as Data
+        request.timeoutInterval = self.requestTimeOutInterval
+        request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/vnd.jlp.version.v1+json", forHTTPHeaderField: "Accept")
+        
+        
+        let config: URLSessionConfiguration = URLSessionConfiguration.default
+        session = URLSession(configuration: config)
+        
+        startDataTask(session: session, request: request)
+        
+        //        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
+        //            if response != nil {
+        //                do {
+        //                    if let json = try JSONSerialization.jsonObject(with: data!, options: .mutableLeaves) as? [String:Any] {
+        //                        let success = json["success"] as? Int                                  // Okay, the `json` is here, let's get the value for 'success' out of it
+        //                        print("Success: \(String(describing: success))")
+        //                        receivedResponse(true, json)
+        //                    } else {
+        //                        let jsonStr = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)    // No error thrown, but not NSDictionary
+        //                        print("Error, could not parse JSON: \(String(describing: jsonStr))")
+        //                        receivedResponse(false, [:])
+        //                    }
+        //                } catch let parseError {
+        //                    print(parseError)                                                          // Log the error thrown by `JSONObjectWithData`
+        //                    let jsonStr = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+        //                    print("Error, could not parse JSON: '\(String(describing: jsonStr))'")
+        //                    receivedResponse(false, [:])
+        //                }
+        //            } else {
+        //                receivedResponse(false, [:])
+        //            }
+        //        })
+        //        task.resume()
+    }
+    
+    
+
     
     // MARK: for completing task
     private func startDataTask(session: URLSession, request: URLRequest) {

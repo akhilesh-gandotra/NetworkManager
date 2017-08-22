@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5DB0715D1F4CAC0300C41F3A /* PickerButton .swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB0715C1F4CAC0300C41F3A /* PickerButton .swift */; };
 		A751437D1F4AAB810089578A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A751437C1F4AAB810089578A /* AppDelegate.swift */; };
 		A751437F1F4AAB810089578A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A751437E1F4AAB810089578A /* ViewController.swift */; };
 		A75143821F4AAB810089578A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A75143801F4AAB810089578A /* Main.storyboard */; };
@@ -35,6 +36,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5DB0715C1F4CAC0300C41F3A /* PickerButton .swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PickerButton .swift"; sourceTree = "<group>"; };
 		A75143791F4AAB810089578A /* NetworkManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A751437C1F4AAB810089578A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A751437E1F4AAB810089578A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				A75143AA1F4AAB950089578A /* NetworkManager.swift */,
 				A751437E1F4AAB810089578A /* ViewController.swift */,
 				A75143801F4AAB810089578A /* Main.storyboard */,
+				5DB0715C1F4CAC0300C41F3A /* PickerButton .swift */,
 				A75143831F4AAB810089578A /* Assets.xcassets */,
 				A75143851F4AAB810089578A /* LaunchScreen.storyboard */,
 				A75143881F4AAB810089578A /* Info.plist */,
@@ -262,6 +265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DB0715D1F4CAC0300C41F3A /* PickerButton .swift in Sources */,
 				A75143AB1F4AAB950089578A /* NetworkManager.swift in Sources */,
 				A751437F1F4AAB810089578A /* ViewController.swift in Sources */,
 				A751437D1F4AAB810089578A /* AppDelegate.swift in Sources */,
@@ -511,6 +515,7 @@
 				A75143A31F4AAB810089578A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A75143A41F4AAB810089578A /* Build configuration list for PBXNativeTarget "NetworkManagerTests" */ = {
 			isa = XCConfigurationList;
@@ -519,6 +524,7 @@
 				A75143A61F4AAB810089578A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A75143A71F4AAB810089578A /* Build configuration list for PBXNativeTarget "NetworkManagerUITests" */ = {
 			isa = XCConfigurationList;
@@ -527,6 +533,7 @@
 				A75143A91F4AAB810089578A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -26,10 +26,22 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F04-2k-Gze">
+                                <rect key="frame" x="20" y="243" width="335" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="F04-2k-Gze" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="223" id="AZI-yt-v4l"/>
+                            <constraint firstAttribute="trailing" secondItem="F04-2k-Gze" secondAttribute="trailing" constant="20" id="Q7i-7s-gdF"/>
+                            <constraint firstItem="F04-2k-Gze" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="UqT-pb-v9x"/>
+                        </constraints>
                     </view>
                     <connections>
+                        <outlet property="label1" destination="F04-2k-Gze" id="U9w-TF-8PE"/>
                         <outlet property="picker" destination="CAf-rg-h4X" id="ols-4t-qGn"/>
                     </connections>
                 </viewController>

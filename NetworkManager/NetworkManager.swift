@@ -47,7 +47,7 @@ class NetworkManager {
     private var completionCallBack: networkHandler?
     
     init() {
-        headers["authorization"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjExRTc4M0U4NEZCMDYwRTBBRDNBNjkwQjhBNTFBQzZFIiwiZGF0ZSI6MTUwMzMyMDcwMDY5MCwiaWF0IjoxNTAzMzIwNzAwfQ.F7RP6885yEiWni0xdDQfdFrVG2-SBU6KTYG9aKylHJ8"
+//        headers["authorization"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjExRTc4M0U4NEZCMDYwRTBBRDNBNjkwQjhBNTFBQzZFIiwiZGF0ZSI6MTUwMzMyMDcwMDY5MCwiaWF0IjoxNTAzMzIwNzAwfQ.F7RP6885yEiWni0xdDQfdFrVG2-SBU6KTYG9aKylHJ8"
     }
     
     
@@ -214,28 +214,32 @@ class NetworkManager {
     // MARK: for completing task
     private func startDataTask(session: URLSession, request: URLRequest) {
         let task = session.dataTask(with: request) { (data, response, error) in
-            guard error == nil else {
-                self.completionCallBack?(ResponseType.failure(error!))
-                return
-            }
-            var jsonObject: [String: Any]?
-            guard let data = data else {
-                return
-            }
-            do {
-                if let  json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    jsonObject = json
+            
+            DispatchQueue.main.async {
+                guard error == nil else {
+                    self.completionCallBack?(ResponseType.failure(error!))
+                    return
                 }
-            } catch {
-                let error = self.errorWithDescription(description: "Serialization error", code: 20)
-                self.completionCallBack?(ResponseType.failure(error))
-                return
+                var jsonObject: [String: Any]?
+                guard let data = data else {
+                    return
+                }
+                do {
+                    if let  json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                        jsonObject = json
+                    }
+                } catch {
+                    let error = self.errorWithDescription(description: "Serialization error", code: 20)
+                    self.completionCallBack?(ResponseType.failure(error))
+                    return
+                }
+                guard let response = response as? HTTPURLResponse else {
+                    return
+                }
+                self.handleCases(statusCode: response.statusCode, json: jsonObject)
             }
-            guard let response = response as? HTTPURLResponse else {
-                return
-            }
-            self.handleCases(statusCode: response.statusCode, json: jsonObject)
         }
+     
         task.resume()
     }
     

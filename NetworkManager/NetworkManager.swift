@@ -41,7 +41,7 @@ class NetworkManager {
     private var requestTimeOutInterval:TimeInterval = 70
     private var parametres: [String: Any]?
     private var files = [MultipartFile]()
-
+    
     
     typealias networkHandler = (ResponseType) -> ()
     private var completionCallBack: networkHandler?
@@ -100,32 +100,32 @@ class NetworkManager {
     }
     
     // MARK: Completion handler
-    func completion(callback: @escaping networkHandler) {
+    public func completion(callback: @escaping networkHandler) {
         completionCallBack = callback
         if files.isEmpty {
-             startRequest()
-                return
+            startRequest()
+            return
         }
-        uploadingMultipleTask()
+        startMultipartRequest()
     }
     
     
-     // MARK: Creating Request
+    // MARK: Creating Request
     private func startRequest() {
         guard let url = URL(string: fullUrlString),
-        var request = URLRequest(url: url) as? URLRequest else {
-            return
+            var request = URLRequest(url: url) as? URLRequest else {
+                return
         }
-
+        
         request.httpMethod = httpMethod.rawValue
         request.timeoutInterval = self.requestTimeOutInterval
         let session = URLSession(configuration: .default)
-    
+        
         switch httpMethod {
         case .post, .put:
             do {
                 if let params = parametres {
-                   request.httpBody = try JSONSerialization.data(withJSONObject: params, options: [])
+                    request.httpBody = try JSONSerialization.data(withJSONObject: params, options: [])
                 }
                 
             } catch {
@@ -138,20 +138,19 @@ class NetworkManager {
         
         //for adding headers
         for (key, value) in headers {
-             request.addValue(value, forHTTPHeaderField: key)
+            request.addValue(value, forHTTPHeaderField: key)
         }
         startDataTask(session: session, request: request)
     }
     
-    func uploadingMultipleTask() {
+    private func startMultipartRequest() {
         
-        var session = URLSession.shared
-        let boundary: NSString = "----WebKitFormBoundarycC4YiaUFwM44F6rT"
+        let boundary = "----WebKitFormBoundarycC4YiaUFwM44F6rT"
         var body = Data()
         if let params = self.parametres {
             for (key, value) in params {
                 body.append(("--\(boundary)\r\n").data(using: String.Encoding.utf8, allowLossyConversion: true)!)
-                body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n" .data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+                body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
                 body.append("\(value)\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
             }
         }
@@ -163,23 +162,26 @@ class NetworkManager {
             body.append("\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
         }
         
-        body.append("--\(boundary)--\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+        body.append("--\(boundary)--".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
         guard let url = URL(string: fullUrlString) else {
-                return
+            return
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod.rawValue
         request.httpBody = body
         request.timeoutInterval = self.requestTimeOutInterval
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.addValue("application/vnd.viva.version.v1+json", forHTTPHeaderField: "Accept")
-        session = URLSession(configuration: .default)
+        request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        //for adding headers
+        for (key, value) in headers {
+            request.addValue(value, forHTTPHeaderField: key)
+        }
+        let session = URLSession(configuration: .default)
         
         startDataTask(session: session, request: request)
         
-        }
-
+    }
+    
     // MARK: for completing task
     private func startDataTask(session: URLSession, request: URLRequest) {
         
@@ -195,9 +197,9 @@ class NetworkManager {
                     return
                 }
                 do {
-                    if let  json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                        jsonObject = json
-                    }
+                    let  json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                    jsonObject = json
+                    
                 } catch {
                     let error = self.errorWithDescription(description: "Serialization error", code: 20)
                     self.completionCallBack?(ResponseType.failure(error))
@@ -209,13 +211,13 @@ class NetworkManager {
                 self.handleCases(statusCode: response.statusCode, json: jsonObject)
             }
         }
-     
+        
         task.resume()
     }
     
     
     // MARK: Handling cases
-    func handleCases(statusCode: Int, json: [String: Any]?) {
+    private func handleCases(statusCode: Int, json: [String: Any]?) {
         guard let json = json else {
             return
         }
@@ -245,7 +247,7 @@ class NetworkManager {
         let userInfo = [NSLocalizedDescriptionKey: description]
         return NSError(domain: "app", code: code, userInfo: userInfo) as Error
     }
-
+    
 }
 
 extension Dictionary {

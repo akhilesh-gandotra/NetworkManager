@@ -2,8 +2,8 @@
 //  PickerButton.swift
 //  CLApp
 //
-//  Created by soc-macmini-45 on 17/01/17.
-//  Copyright © 2017 Hardeep Singh. All rights reserved.
+//  Created by Akhilesh Gandotra on 17/01/17.
+//  Copyright © 2017 Akhilesh Gandotra All rights reserved.
 //
 
 import UIKit

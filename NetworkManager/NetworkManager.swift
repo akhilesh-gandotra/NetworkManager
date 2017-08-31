@@ -47,7 +47,7 @@ class NetworkManager {
     private var completionCallBack: networkHandler?
     
     init() {
-//        headers["authorization"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjExRTc4M0U4NEZCMDYwRTBBRDNBNjkwQjhBNTFBQzZFIiwiZGF0ZSI6MTUwMzMyMDcwMDY5MCwiaWF0IjoxNTAzMzIwNzAwfQ.F7RP6885yEiWni0xdDQfdFrVG2-SBU6KTYG9aKylHJ8"
+        
     }
     
     
@@ -140,25 +140,23 @@ class NetworkManager {
         for (key, value) in headers {
              request.addValue(value, forHTTPHeaderField: key)
         }
-        
         startDataTask(session: session, request: request)
-
     }
     
     func uploadingMultipleTask() {
         
         var session = URLSession.shared
         let boundary: NSString = "----WebKitFormBoundarycC4YiaUFwM44F6rT"
-        let body: NSMutableData = NSMutableData()
+        var body = Data()
         if let params = self.parametres {
             for (key, value) in params {
-                body.append(("--\(boundary)\r\n" as String).data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+                body.append(("--\(boundary)\r\n").data(using: String.Encoding.utf8, allowLossyConversion: true)!)
                 body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n" .data(using: String.Encoding.utf8, allowLossyConversion: true)!)
                 body.append("\(value)\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
             }
         }
         for file in self.files {
-            body.append(("--\(boundary)\r\n" as String).data(using: String.Encoding.utf8, allowLossyConversion: true)!)
+            body.append(("--\(boundary)\r\n").data(using: String.Encoding.utf8, allowLossyConversion: true)!)
             body.append("Content-Disposition: form-data; name=\"\(file.name)\"; filename=\"\(file.fileName)\"\r\n" .data(using: String.Encoding.utf8, allowLossyConversion: true)!)
             body.append("Content-Type: \(file.mimeType)\r\n\r\n".data(using: String.Encoding.utf8, allowLossyConversion: true)!)
             body.append(file.data)
@@ -172,47 +170,19 @@ class NetworkManager {
         
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod.rawValue
-        request.httpBody = body as Data
+        request.httpBody = body
         request.timeoutInterval = self.requestTimeOutInterval
-        request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        request.addValue("application/vnd.jlp.version.v1+json", forHTTPHeaderField: "Accept")
-        
-        
-        let config: URLSessionConfiguration = URLSessionConfiguration.default
-        session = URLSession(configuration: config)
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/vnd.viva.version.v1+json", forHTTPHeaderField: "Accept")
+        session = URLSession(configuration: .default)
         
         startDataTask(session: session, request: request)
         
-        //        let task = session.dataTask(with: request, completionHandler: {data, response, error -> Void in
-        //            if response != nil {
-        //                do {
-        //                    if let json = try JSONSerialization.jsonObject(with: data!, options: .mutableLeaves) as? [String:Any] {
-        //                        let success = json["success"] as? Int                                  // Okay, the `json` is here, let's get the value for 'success' out of it
-        //                        print("Success: \(String(describing: success))")
-        //                        receivedResponse(true, json)
-        //                    } else {
-        //                        let jsonStr = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)    // No error thrown, but not NSDictionary
-        //                        print("Error, could not parse JSON: \(String(describing: jsonStr))")
-        //                        receivedResponse(false, [:])
-        //                    }
-        //                } catch let parseError {
-        //                    print(parseError)                                                          // Log the error thrown by `JSONObjectWithData`
-        //                    let jsonStr = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
-        //                    print("Error, could not parse JSON: '\(String(describing: jsonStr))'")
-        //                    receivedResponse(false, [:])
-        //                }
-        //            } else {
-        //                receivedResponse(false, [:])
-        //            }
-        //        })
-        //        task.resume()
-    }
-    
-    
+        }
 
-    
     // MARK: for completing task
     private func startDataTask(session: URLSession, request: URLRequest) {
+        
         let task = session.dataTask(with: request) { (data, response, error) in
             
             DispatchQueue.main.async {
@@ -242,6 +212,7 @@ class NetworkManager {
      
         task.resume()
     }
+    
     
     // MARK: Handling cases
     func handleCases(statusCode: Int, json: [String: Any]?) {
@@ -292,17 +263,4 @@ extension Dictionary {
         }
     }
     
-}
-
-extension DispatchQueue {
-    class func performAction(after seconds: TimeInterval, callBack: @escaping ((Bool) -> (Void)) ) {
-        DispatchQueue.delay(delay: seconds) {
-            callBack(true)
-        }
-    }
-    private class func delay(delay: TimeInterval, closure: @escaping () -> Void) {
-        let when = DispatchTime.now() + delay
-        DispatchQueue.main.asyncAfter(deadline: when, execute: closure)
-    }
-
 }

@@ -2,8 +2,8 @@
 //  AppDelegate.swift
 //  NetworkManager
 //
-//  Created by soc-macmini-45 on 21/08/17.
-//  Copyright © 2017 soc-macmini-45. All rights reserved.
+//  Created by Akhilesh on 21/08/17.
+//  Copyright © 2017Akhilesh Gandotra. All rights reserved.
 //
 
 import UIKit

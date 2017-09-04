@@ -7,7 +7,8 @@
 //
 
 import Foundation
-
+import UIKit //for activity indicator on status bar
+import SystemConfiguration
 
 enum HTTPMethod: String {
     case put = "PUT"
@@ -53,19 +54,19 @@ class NetworkManager {
     
     // MARK: For additional functionality
     @discardableResult
-    func addHeaders(headers: [String: String]) -> NetworkManager {
+    public func addHeaders(headers: [String: String]) -> NetworkManager {
         self.headers.appendDictionary(other: headers)
         return self
     }
     
     @discardableResult
-    func configure(showAlert:Bool, requestTimeOutInterval: TimeInterval) -> NetworkManager {
+    public func configure(showAlert:Bool, requestTimeOutInterval: TimeInterval) -> NetworkManager {
         self.showAlert = showAlert
         self.requestTimeOutInterval = requestTimeOutInterval
         return self
     }
     
-    convenience init(httpMethod:HTTPMethod, fullUrlString: String, params: [String: Any]?, files: [MultipartFile]) {
+     convenience init(httpMethod:HTTPMethod, fullUrlString: String, params: [String: Any]?, files: [MultipartFile]) {
         self.init()
         self.httpMethod = httpMethod
         guard let encodedUrl = fullUrlString.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed) else {
@@ -77,7 +78,7 @@ class NetworkManager {
     }
     
     
-    convenience init(httpMethod:HTTPMethod, extendedUrl: String, params: [String: Any]?) {
+     convenience init(httpMethod:HTTPMethod, extendedUrl: String, params: [String: Any]?) {
         self.init()
         self.httpMethod = httpMethod
         self.extendedUrl = extendedUrl
@@ -89,7 +90,7 @@ class NetworkManager {
         
     }
     
-    convenience init(httpMethod:HTTPMethod, fullUrlString: String, params: [String: Any]?) {
+     convenience init(httpMethod:HTTPMethod, fullUrlString: String, params: [String: Any]?) {
         self.init()
         self.httpMethod = httpMethod
         guard let encodedUrl = fullUrlString.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed) else {
@@ -112,11 +113,10 @@ class NetworkManager {
     
     // MARK: Creating Request
     private func startRequest() {
-        guard let url = URL(string: fullUrlString),
-            var request = URLRequest(url: url) as? URLRequest else {
+        guard let url = URL(string: fullUrlString) else {
                 return
         }
-        
+        var request = URLRequest(url: url)
         request.httpMethod = httpMethod.rawValue
         request.timeoutInterval = self.requestTimeOutInterval
         let session = URLSession(configuration: .default)
@@ -184,10 +184,18 @@ class NetworkManager {
     
     // MARK: for completing task
     private func startDataTask(session: URLSession, request: URLRequest) {
-        
+        guard isConnectedToNetwork() else {
+            let error = self.errorWithDescription(description: "No active internet connection", code: 45)
+             self.completionCallBack?(ResponseType.failure(error))
+            return
+        }
+        if showAlert {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        }
         let task = session.dataTask(with: request) { (data, response, error) in
             
             DispatchQueue.main.async {
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
                 guard error == nil else {
                     self.completionCallBack?(ResponseType.failure(error!))
                     return
@@ -248,6 +256,26 @@ class NetworkManager {
         return NSError(domain: "app", code: code, userInfo: userInfo) as Error
     }
     
+   public func isConnectedToNetwork() -> Bool {
+        var zeroAddress = sockaddr_in(sin_len: 0, sin_family: 0, sin_port: 0, sin_addr: in_addr(s_addr: 0), sin_zero: (0, 0, 0, 0, 0, 0, 0, 0))
+        zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
+        zeroAddress.sin_family = sa_family_t(AF_INET)
+        let defaultRouteReachability = withUnsafePointer(to: &zeroAddress) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {zeroSockAddress in
+                SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
+            }
+        }
+        
+        var flags = SCNetworkReachabilityFlags()
+        if !SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags) {
+            return false
+        }
+        let isReachable = (flags.rawValue & UInt32(kSCNetworkFlagsReachable)) != 0
+        let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
+        
+        return (isReachable && !needsConnection)
+        
+    }
 }
 
 extension Dictionary {

@@ -28,5 +28,22 @@ class ViewController: UIViewController {
                 
             }
         }
+        
+        
+        picker.imageCallBack = { (filepath,error) in
+                       if let data =  UIImageJPEGRepresentation(UIImage(contentsOfFile: filepath!)!, 0.1) {
+                                let file = MultipartFile(name: "profilePic", mimeType: "image/jpg", data: data as Data, fileName: "dp.jpg")
+                    
+                    
+                                      NetworkManager(httpMethod: .put, fullUrlString: "https://api-staging.praoshealth.com/v1/updateProfile", params: nil, files: [file]).completion(callback: { (result) in
+                                            switch result {
+                                                    case .failure(let error):
+                                                          print(error.localizedDescription)
+                                                    case .success(let dict) :
+                                                            print(dict)
+                                                    }
+                                            })
+            }
+                    }
     }
 }
